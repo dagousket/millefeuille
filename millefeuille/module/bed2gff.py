@@ -37,7 +37,7 @@ def get_Dictbed12(
     Name of the BED file to be converted
   """
 	# put bed12 info into lis of dictionaries
-  with open(file_bed,'rU') as f :
+  with open(file_bed,'r') as f :
     ListDict = []
     keys = ['chr', 'start', 'features', 'strand', 'block', 'size', 'starting_block']
     for l in f:
