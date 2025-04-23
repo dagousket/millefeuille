@@ -34,6 +34,7 @@ def get_Dict(
   file_gff: str,
   mol_type: str,
   feature_type: str,
+  id_as_features: bool = True,
   ) -> dict:
 	"""
  Create a dictionary from the GFF file which contains the infomations of all feature_type of a given mol_type (ie exon, CDS).
@@ -46,6 +47,8 @@ def get_Dict(
     The molecular type (column 3 of the GFF file) selected for the BED files, default is exon
   feature_type
     The feature type (column 9 of the GFF file) selected for the BED files, default is Parent
+  id_as_features
+    If set to True, the ID of each element will be set as a string containing all its features
 
   Returns
   -------
@@ -79,7 +82,11 @@ def get_Dict(
 
 
 def consistency_check(
-  myDict: dict
+  myDict: dict,
+  feature_type: str = 'Parent',
+  verbose: bool = True,
+  mol_type: str = 'exon',
+  discard: bool = True
   ) -> bool:
 	"""
  Check the consistency of the data from gff.
@@ -90,6 +97,14 @@ def consistency_check(
   ----------
   myDict
     The dictionary containing the information of the features
+  feature_type
+    The feature type (column 9 of the GFF file) selected for the BED files, default is Parent
+  verbose
+    If set to True, the function will print warnings for strand inconsistencies and overlapping elements.
+  mol_type
+    The molecular type (column 3 of the GFF file) selected for the BED files, default is exon
+  discard
+    If set to True, the function will discard elements that raise warnings in the consistency check.
 
   Returns
   -------
@@ -104,7 +119,7 @@ def consistency_check(
 		#chromosome consistency
 		if len(set([d['chr'] for d in myDict[t]])) != 1 :
 			allchr += 1
-			print 'WARNING : Chromosome consistency is not satisfied for '+feature_type+' '+t
+			print('WARNING : Chromosome consistency is not satisfied for '+feature_type+' '+t)
 		#strand consistency
 		elif len(set([d['strand'] for d in myDict[t]])) != 1 :
 			allstrand.append(t)
@@ -125,10 +140,10 @@ def consistency_check(
 			alloverlap.append(t)
 	#Count and print warnings
 	if (alloverlap and verbose):
-		print '\nWarning : overlapping '+mol_type+' in '+feature_type+' :\n'+','.join(alloverlap)
+		print('\nWarning : overlapping '+mol_type+' in '+feature_type+' :\n'+','.join(alloverlap))
 	if (allstrand and verbose):
-		print '\nWarning : Strand consistency is not satisfied for '+feature_type+' :\n'+t+','.join(allstrand)
-	print '\nTotal of :\n\t'+str(len(allstrand))+' strand inconsistencies\n\t'+str(len(alloverlap))+' '+feature_type+' with overlapping '+mol_type+'\n\t'+str(allchr)+' chromosome inconsistencies'
+		print('\nWarning : Strand consistency is not satisfied for '+feature_type+' :\n'+t+','.join(allstrand))
+	print('\nTotal of :\n\t'+str(len(allstrand))+' strand inconsistencies\n\t'+str(len(alloverlap))+' '+feature_type+' with overlapping '+mol_type+'\n\t'+str(allchr)+' chromosome inconsistencies')
 	#Discard inconsistent element
 	if discard :
 		nbdisc = len(myDict)
@@ -136,7 +151,7 @@ def consistency_check(
 		for k in reject :
 			myDict.pop(k)
 		nbdisc -= len(myDict)
-		print '\nDiscarded '+str(nbdisc)+' elements with strand inconsistencies and/or overlapping\n'
+		print('\nDiscarded '+str(nbdisc)+' elements with strand inconsistencies and/or overlapping\n')
 	return True
 
 
@@ -146,6 +161,8 @@ def bed6_generator(
   feature_type : str,
   path : str,
   bedname : str,
+  id_as_features : bool = True,
+  skip_exon_number : bool = True
   ) -> None:
 	"""
  Create a simple BED file in the working directory.
@@ -162,6 +179,10 @@ def bed6_generator(
         The location where BED files will be created, default is current working directory
     bedname
         The name of the BED files, default is the GFF file name
+    id_as_features
+        Will set the ID of each element as a string containing all its features
+    skip_exon_number
+        If set, the program will skip adding _# for exon number.
 
     Returns
     -------
@@ -194,7 +215,9 @@ def bed12_generator(
   feature_type : str,
   path : str,
   bedname : str,
-  check : bool) -> None:
+  check : bool,
+  id_as_features : bool = True
+  ) -> None:
 	"""
  Create a BED12 file in the working directory.
 
@@ -212,6 +235,9 @@ def bed12_generator(
         The name of the BED files, default is the GFF file name
     check
         If set to True, the function will check the consistency of the data before creating the BED12 file.
+    id_as_features
+        Will set the ID of each element as a string containing all its features
+
     Returns
     -------
     None, but creates a BED12 file in the specified path.
@@ -303,10 +329,10 @@ def gff2bed(
 		bedname = name
 	check = False
 	if no_bed6 :
-		print '\nCreating BED6 with all '+mol_type+'s from the gff file'
+		print('\nCreating BED6 with all '+mol_type+'s from the gff file')
 		bed6_generator(gff_file,mol_type,feature_type,path,bedname)
 		#Avoid redoing consistency check in bed12 if already done for bed6
 		check = True
 	if bed12 :
-		print '\nCreating BED12 with all '+mol_type+'s from gff file, grouped according to their '+feature_type
+		print('\nCreating BED12 with all '+mol_type+'s from gff file, grouped according to their '+feature_type)
 		bed12_generator(gff_file,mol_type,feature_type,path,bedname,check)
