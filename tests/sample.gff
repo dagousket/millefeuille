@@ -1,0 +1,5 @@
+chr2L	FlyBase	CDS	13520	13625	.	-	0	gene_id=FBgn0002121;parent_type=mRNA;Name=l(2)gl-cds;Parent=FBtr0306591,FBtr0330655
+chr2L	FlyBase	intron	74573	74902	.	+	.	gene_id=FBgn0031213;parent_type=mRNA;Name=galectin-in;Parent=FBtr0301733
+chr2L	FlyBase	intron	156349	156422	.	+	.	gene_id=FBgn0031229;parent_type=mRNA;Name=CG3436-in;Parent=FBtr0340650
+chr2L	FlyBase	exon	337016	337198	.	+	.	gene_id=FBgn0004611;parent_type=mRNA;Name=Plc21C:9;Parent=FBtr0078049,FBtr0078050,FBtr0078047,FBtr0078048,FBtr0330674
+chr2L	FlyBase	CDS	537863	539249	.	+	1	gene_id=FBgn0003963;parent_type=mRNA;Name=ush-cds;Parent=FBtr0333012

@@ -30,10 +30,10 @@ def get_featureDict(
   return featureDict
 
 
-def get_Dict(
+def get_Dictgff(
   file_gff: str,
-  mol_type: str,
-  feature_type: str,
+  mol_type: str = 'exon',
+  feature_type: str = 'Parent',
   id_as_features: bool = True,
   ) -> dict:
 	"""
@@ -55,19 +55,20 @@ def get_Dict(
   dict
     A dictionary with the feature type as key and a dictionary for each mol_type in the feature with chr, start, stop and strand keys as value.
 	"""
-	with open(file_gff,'rU') as f :
+	with open(file_gff,'r') as f :
 		myDict = {}
 		for l in f :
-			if l.rstrip('\r\n').split('\t')[2] == mol_type :
+			line = l.rstrip('\r\n').split('\t')
+			if len(line) > 3 and line[2] == mol_type :
 				#get feature type in key of featDict
-				featDict = get_featureDict(l.rstrip('\r\n').split('\t')[-1])
+				featDict = get_featureDict(line[-1])
 				#get mol_type info
 				keys = ['chr','start','stop','strand']
-				values = [l.rstrip('\r\n').split('\t')[i] for i in [0,3,4,6]]
+				values = [line[i] for i in [0,3,4,6]]
 				#add the key name if id_as_feature argument is specified
 				if id_as_features :
 					keys.append('name')
-					values.append(l.rstrip('\r\n').split('\t')[-1])
+					values.append(line[-1])
 				exonDict = dict(zip(keys, values))
 				#create dict key=feattype value=moltypeDict1
 				for t in featDict[feature_type] :
@@ -156,11 +157,11 @@ def consistency_check(
 
 
 def bed6_generator(
-  file_gff : str,
-  mol_type : str,
-  feature_type : str,
-  path : str,
   bedname : str,
+  file_gff : str,
+  mol_type : str = 'exon',
+  feature_type : str = 'Parent',
+  path : str  = './',
   id_as_features : bool = True,
   skip_exon_number : bool = True
   ) -> None:
@@ -189,7 +190,7 @@ def bed6_generator(
     None, but creates a BED6 file in the specified path.
 	"""
 	#uses os module
-	myDict = get_Dict(file_gff,mol_type,feature_type)
+	myDict = get_Dictgff(file_gff,mol_type,feature_type)
 	if consistency_check(myDict) :
 		#only allow to pursue script if check script runs correctly
 		with open(path.rstrip('/')+'/'+bedname+".bed6",'w') as f6 : #check
@@ -210,12 +211,12 @@ def bed6_generator(
 
 
 def bed12_generator(
-  file_gff  : str,
-  mol_type  : str,
-  feature_type : str,
-  path : str,
   bedname : str,
-  check : bool,
+  file_gff  : str,
+  mol_type  : str = 'exon',
+  feature_type : str = 'Parent',
+  path : str = './',
+  check : bool = False,
   id_as_features : bool = True
   ) -> None:
 	"""
@@ -243,7 +244,7 @@ def bed12_generator(
     None, but creates a BED12 file in the specified path.
 	"""
 	#uses os module
-	myDict = get_Dict(file_gff,mol_type,feature_type)
+	myDict = get_Dictgff(file_gff,mol_type,feature_type)
 	if not check :
 		if consistency_check(myDict) :
 			check = True

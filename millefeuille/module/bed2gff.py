@@ -51,7 +51,7 @@ def get_gff(
   file_bed : str,
   source : str,
   mol_type : str,
-  make_gff3 : bool
+  make_gff3 : bool = True
   ) -> None:
   """
   Converts a given BED file into a GFF file with features from a given gff file.
@@ -84,7 +84,7 @@ def get_gff_from_bed12(
   file_bed : str,
   source : str,
   mol_type : str,
-  make_gff3 : bool
+  make_gff3 : bool = True
   ) -> None:
   """
   Converts a given BED file into a GFF file with features from a given gff file.
