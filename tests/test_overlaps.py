@@ -117,3 +117,30 @@ def test_single_overlap():
     ), "Expected overlap regions coordinates to match for a"
     assert len(result["b"]) == 0, "Expected no overlap regions coordinates for b"
     assert len(result["c"]) == 0, "Expected no overlap regions coordinates for c"
+
+
+def test_all_overlaps():
+    file_beds = ["./tests/sample1.bed", "./tests/sample2.bed", "./tests/sample3.bed"]
+    result = ov.all_overlaps(file_beds)
+    assert len(result) == 7, "Expected 7 overlap regions"
+    assert isinstance(result, dict), "Expected result to be a dictionary"
+    assert set(result.keys()) == set(
+        [
+            "a::b",
+            "a::c",
+            "b::c",
+            "a::b::c",
+            "a",
+            "b",
+            "c",
+        ]
+    ), "Expected key to be 'a::b', 'a::c', 'b::c', 'a::b::c', 'a', 'b', 'c'"
+    assert result == {
+        "c": 0,
+        "b": 0,
+        "a": 1,
+        "a::b": 1,
+        "a::c": 0,
+        "b::c": 1,
+        "a::b::c": 2,
+    }, "Expect correct detection of overlaps"

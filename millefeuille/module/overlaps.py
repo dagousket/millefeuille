@@ -88,3 +88,42 @@ def single_overlap(pr_dict: dict) -> dict:
         bedsingle_output[last_overlap] = single_overlap
 
     return bedsingle_output
+
+
+def all_overlaps(
+    list_bed: list, names: list = ["a", "b", "c"], as_bp: bool = False
+) -> dict:
+    """
+    Calculate the overlaps between the three pyranges intervals.
+
+    Parameters
+    ----------
+    list_bed : list
+      A list of bed files. Must be of length 3.
+    names : list
+      A list of names for the bed files. Must be of length 3.
+    as_bp : bool
+      If True, return the length of the intervals in base pairs instead of overlap count. Default is False.
+
+    Returns
+    -------
+    list
+      A dict of pyranges intervals.
+    """
+    all_beds = load_beds(list_bed)
+    bed_1layer = single_overlap(all_beds)
+    bed_2layer = double_overlap(all_beds)
+    bed_3layer = triple_overlap(all_beds)
+    all_overlap = {**bed_1layer, **bed_2layer, **bed_3layer}
+    if as_bp:
+        all_overlap = dict(
+            zip(
+                all_overlap.keys(),
+                [ov.merge(strand=False).length for ov in all_overlap.values()],
+            )
+        )
+    else:
+        all_overlap = dict(
+            zip(all_overlap.keys(), [len(ov) for ov in all_overlap.values()])
+        )
+    return all_overlap
