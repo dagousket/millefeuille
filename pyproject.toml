@@ -5,10 +5,12 @@ description = "Manipulate genomic coordinates overlaps"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
+    "ncls",
     "pyranges>=0.1.4",
     "pytest>=8.3.5",
     "sorted-nearest",
 ]
 
 [tool.uv.sources]
-sorted-nearest = { git = "https://github.com/pyranges/sorted_nearest.git", rev = "refs/pull/11/head" }
+sorted-nearest = { git = "https://github.com/pyranges/sorted_nearest.git", rev = "refs/pull/11/merge" }
+ncls = { git = "https://github.com/pyranges/ncls.git", rev = "refs/pull/51/merge" }
