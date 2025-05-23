@@ -38,6 +38,7 @@ version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "ncls" },
+    { name = "pandas" },
     { name = "pyranges" },
     { name = "pytest" },
     { name = "sorted-nearest" },
@@ -46,6 +47,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "ncls", git = "https://github.com/pyranges/ncls.git?rev=refs%2Fpull%2F51%2Fmerge" },
+    { name = "pandas", specifier = ">=2.2.3" },
     { name = "pyranges", specifier = ">=0.1.4" },
     { name = "pytest", specifier = ">=8.3.5" },
     { name = "sorted-nearest", git = "https://github.com/pyranges/sorted_nearest.git?rev=refs%2Fpull%2F11%2Fmerge" },
