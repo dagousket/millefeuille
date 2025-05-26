@@ -3,6 +3,9 @@ import sys
 import argparse
 import pyranges as pr, pandas as pd
 from itertools import combinations
+import matplotlib.pyplot as plt
+import upsetplot as upset
+from matplotlib_venn import venn3
 
 
 def load_beds(list_bed: list, names: list = ["a", "b", "c"]) -> dict:
@@ -127,3 +130,51 @@ def all_overlaps(
             zip(all_overlap.keys(), [len(ov) for ov in all_overlap.values()])
         )
     return all_overlap
+
+
+def plot_overlaps(
+    list_bed: list,
+    names: list = ["a", "b", "c"],
+    as_venn: bool = False,
+    as_bp: bool = False,
+) -> None:
+    """
+    Plot the overlaps between the three pyranges intervals.
+
+    Parameters
+    ----------
+    list_bed : list
+      A list of bed files. Must be of length 3.
+    names : list
+      A list of names for the bed files. Must be of length 3.
+    as_venn : bool
+      If True, plot a Venn diagram instead of an Upset plot. Default is False.
+    as_bp : bool
+      If True, return the length of the intervals in base pairs instead of overlap count. Default is False.
+    ax : plt.Axes
+      The matplotlib Axes to plot on. If None, a new figure and axes will be created. Default is None.
+    """
+
+    all_overlap = all_overlaps(list_bed, names, as_bp)
+
+    if as_venn:
+        # plot Venn with count order : Abc, aBc, ABc, abC, AbC, aBC, ABC
+        ordered_items = [
+            [x, y, [x, y], z, [x, z], [y, z], [x, y, z]]
+            for x, y, z in zip(names[0], names[1], names[2])
+        ][0]
+        ordered_values = [all_overlap.get("::".join(item), 0) for item in ordered_items]
+        venn3(subsets=ordered_values, set_labels=names)
+
+    elif not as_venn:
+        # plot Upset
+        pd.set_option("future.no_silent_downcasting", True)
+        counts = upset.from_memberships(
+            [name.split("::") for name in all_overlap.keys()],
+            data=list(all_overlap.values()),
+        )
+        upset.plot(counts)
+
+    plt.show()
+
+    return None
