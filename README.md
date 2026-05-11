@@ -1,55 +1,28 @@
 
 
-# {millefeuille}
+# `{millefeuille}`
 
-This repository contains python and R scripts to help process genomic
+This python package is here to help process and explore genomic
 coordinates files (BED, GFF).
 
-## gff_to_bed.py
+## Overlap counts
 
-Reverse complement of the bed_to_gff script. This script takes a GFF
-file and converts it into a BED formatted file (BED12 or BED6).
-Selection on the molecular type and feature type to extract in the
-arguments.
+![](recap.png)
 
-Creates BED files from a given GFF file with specific filters. In BED12,
-groups all the elements of a selected molecular type according to their
-feature
+Create a diagnosis graph to assess the level of mutual overlap between
+three sets of genomic coordinates. Given a set of three region lists of
+coordinates as BED files, you can compute the respective counts for each
+type of overlap (two or three layer overlap) and output a Venn diagram
+or an Upset plot.
 
-``` python
-from millefeuille.module import gff2bed as g2b
+The results comes in different flavors :
 
-g2b.bed12_generator(file_gff="./tests/sample.gff", bedname="sample")
+-   use `as_bp=True` to get count as number of **basepairs** overlaps
+-   use `as_bp=False` to get count as number of **regions** overlaps
+-   use `as_venn=True` to get a **Venn diagram**
+-   use `as_venn=False` to get an **UpSet plot**
 
-g2b.bed6_generator(file_gff="./tests/sample.gff", bedname="sample")
-```
-
-## bed_to_gff.py
-
-Reverse complement of the gff_to_bed script. This script takes a BED
-file and converts it into a GFF formatted file. Works on BED12 and BED6.
-
-Creates GFF file from a given BED file. Note that the features of the
-GFF are created based on the ID of the BED file.
-
-``` python
-from millefeuille.module import bed2gff as b2g
-
-b2g.get_gff(file_bed = "./tests/sample1.bed12",
-            source = "test_source",
-            mol_type = "test_mol_type",
-            make_gff3 = True)
-```
-
-## summary_region_overlaps.R
-
-This script makes a diagnosis graph to assess the level of mutual
-overlap between three sets of genomic coordinates. Given three BED
-files, it outputs a Venn diagram and an Upset plot like the one here.
-Wether or not you apply the `--expand` argument as `TRUE` or `FALSE`,
-you get frequency of overlaps in terms of number of regions
-(`--expand FALSE`) or in terms of number of basepairs (`--expand TRUE`,
-by default).
+### Count as region overlaps
 
 ``` python
 from millefeuille.module import overlaps as ov
@@ -59,16 +32,24 @@ ov.plot_overlaps(
     list_bed=["./tests/sample1.bed", "./tests/sample2.bed", "./tests/sample3.bed"]
 )
 
-# with expand = TRUE, upset plot, cout in number of basepairs
-ov.plot_overlaps(
-    list_bed=["./tests/sample1.bed", "./tests/sample2.bed", "./tests/sample3.bed"],
-    as_bp=True,
-)
-
 # with expand = FALSE, venn diagram, cout in number of regions
 ov.plot_overlaps(
     list_bed=["./tests/sample1.bed", "./tests/sample2.bed", "./tests/sample3.bed"],
     as_venn=True,
+)
+```
+
+![](README_files/figure-markdown_strict/cell-3-output-1.png)
+
+![](README_files/figure-markdown_strict/cell-3-output-2.png)
+
+### Count as basepair overlaps
+
+``` python
+# with expand = TRUE, upset plot, cout in number of basepairs
+ov.plot_overlaps(
+    list_bed=["./tests/sample1.bed", "./tests/sample2.bed", "./tests/sample3.bed"],
+    as_bp=True,
 )
 
 # with expand = TRUE, venn diagram, cout in number of basepairs
@@ -79,16 +60,39 @@ ov.plot_overlaps(
 )
 ```
 
-![](README_files/figure-markdown_strict/cell-5-output-1.png)
+![](README_files/figure-markdown_strict/cell-4-output-1.png)
 
-![](README_files/figure-markdown_strict/cell-5-output-2.png)
+![](README_files/figure-markdown_strict/cell-4-output-2.png)
 
-    /Users/flochlay/code/matpellzo/millefeuille/.venv/lib/python3.13/site-packages/matplotlib_venn/layout/venn3/pairwise.py:169: UserWarning: Bad circle positioning.
-      warnings.warn("Bad circle positioning.")
+## File format conversion
 
-![](README_files/figure-markdown_strict/cell-5-output-4.png)
+### GFF to BED
 
-    /Users/flochlay/code/matpellzo/millefeuille/.venv/lib/python3.13/site-packages/matplotlib_venn/layout/venn3/pairwise.py:169: UserWarning: Bad circle positioning.
-      warnings.warn("Bad circle positioning.")
+Take a GFF file and converts it into a BED formatted file (BED12 or
+BED6). Add a selection on the molecular type and feature type to extract
+the argument of interest. For the conversion to BED12, the regions are
+grouped according to their molecular type and feature information.
 
-![](README_files/figure-markdown_strict/cell-5-output-6.png)
+``` python
+from millefeuille.module import gff2bed as g2b
+
+g2b.bed12_generator(file_gff="./tests/sample.gff", bedname="sample")
+
+g2b.bed6_generator(file_gff="./tests/sample.gff", bedname="sample")
+```
+
+### BED to GFF
+
+Reverse complement of the `g2b` module. This command takes a BED file
+and converts it into a GFF-formatted file. Works on BED12 and BED6. Note
+that the features of the output GFF are created based on the ID of the
+BED file.
+
+``` python
+from millefeuille.module import bed2gff as b2g
+
+b2g.get_gff(file_bed = "./tests/sample1.bed12",
+            source = "test_source",
+            mol_type = "test_mol_type",
+            make_gff3 = True)
+```
